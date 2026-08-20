@@ -2042,19 +2042,19 @@ private struct MediaInfoView: View {
                     .frame(maxWidth: .infinity, alignment: .topLeading)
                 }
             } else {
-                compactContent
-                .padding(.horizontal, 20)
-                .padding(.vertical, 8)
-                .frame(maxWidth: .infinity, alignment: .topLeading)
-                .reportMediaInfoHeight("compact")
+                ScrollView {
+                    compactContent
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 8)
+                        .frame(maxWidth: .infinity, alignment: .topLeading)
+                        .reportMediaInfoHeight("compact")
+                }
+                .scrollIndicators(.automatic)
             }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
             bottomBar
                 .reportMediaInfoHeight("footer")
-                .background(reduceTransparency
-                            ? AnyShapeStyle(Color(nsColor: .windowBackgroundColor))
-                            : AnyShapeStyle(.regularMaterial))
         }
         .frame(minWidth: 680, minHeight: 520)
         .background(reduceTransparency ? AnyShapeStyle(Color(nsColor: .windowBackgroundColor)) : AnyShapeStyle(.regularMaterial))
