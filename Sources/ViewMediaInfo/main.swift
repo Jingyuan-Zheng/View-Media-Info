@@ -1626,6 +1626,8 @@ private struct MediaInfoView: View {
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @ObservedObject var model: MediaInfoWindowModel
     @ObservedObject private var language = LanguageSettings.shared
+    private let footerButtonIconWidth: CGFloat = 18
+    private let footerButtonTitleWidth: CGFloat = 90
 
     private let fileFields: Set<String> = [
         "文件名", "所在目录", "文件路径", "文件大小", "文件格式", "格式名称", "扩展名", "MIME 类型", "文件权限",
@@ -2004,24 +2006,29 @@ private struct MediaInfoView: View {
         }
     }
 
+    private func footerButtonLabel(_ title: String, systemImage: String) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: systemImage)
+                .frame(width: footerButtonIconWidth, alignment: .center)
+            Text(title)
+                .lineLimit(1)
+                .frame(width: footerButtonTitleWidth, alignment: .center)
+        }
+        .frame(width: footerButtonIconWidth + 8 + footerButtonTitleWidth)
+    }
+
     @ViewBuilder private var bottomBar: some View {
         HStack(spacing: 10) {
             Spacer()
             Button {
                 model.toggleDetails()
             } label: {
-                // Both labels participate in layout, so the native button keeps
-                // its compact natural width and never shifts while toggling.
-                ZStack(alignment: .leading) {
-                    Label(localizedText(model.showsDetails ? "精简信息" : "详细信息"),
-                          systemImage: model.showsDetails ? "rectangle.compress.vertical" : "list.bullet.rectangle")
-                    Label(localizedText("详细信息"), systemImage: "list.bullet.rectangle").hidden()
-                    Label(localizedText("精简信息"), systemImage: "rectangle.compress.vertical").hidden()
-                }
+                footerButtonLabel(localizedText(model.showsDetails ? "精简信息" : "详细信息"),
+                                  systemImage: model.showsDetails ? "rectangle.compress.vertical" : "list.bullet.rectangle")
             }
             .focusable(false)
             Button(action: copyDisplayedResults) {
-                Label(localizedText("复制结果"), systemImage: "doc.on.doc")
+                footerButtonLabel(localizedText("复制结果"), systemImage: "doc.on.doc")
             }
             .focusable(false)
         }
