@@ -1626,6 +1626,7 @@ private struct MediaInfoView: View {
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @ObservedObject var model: MediaInfoWindowModel
     @ObservedObject private var language = LanguageSettings.shared
+    private let footerButtonWidth: CGFloat = 190
 
     private let fileFields: Set<String> = [
         "文件名", "所在目录", "文件路径", "文件大小", "文件格式", "格式名称", "扩展名", "MIME 类型", "文件权限",
@@ -2013,11 +2014,12 @@ private struct MediaInfoView: View {
                 Label(localizedText(model.showsDetails ? "精简信息" : "详细信息"),
                       systemImage: model.showsDetails ? "rectangle.compress.vertical" : "list.bullet.rectangle")
             }
-            .frame(width: 138)
+            .frame(width: footerButtonWidth)
             .focusable(false)
             Button(action: copyDisplayedResults) {
                 Label(localizedText("复制结果"), systemImage: "doc.on.doc")
             }
+            .frame(width: footerButtonWidth)
             .focusable(false)
         }
         .padding(.horizontal, 20)
