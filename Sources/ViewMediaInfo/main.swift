@@ -1319,7 +1319,8 @@ private struct CompactMediaQuickLookKeyHandler: NSViewRepresentable {
                       event.keyCode == 49,
                       self.isEnabled,
                       let url = self.url,
-                      self.window?.isKeyWindow == true || QLPreviewPanel.shared()?.isVisible == true
+                      (NSApp.isActive && (self.window == nil || self.window?.isKeyWindow == true))
+                        || QLPreviewPanel.shared()?.isVisible == true
                 else { return event }
                 Task { @MainActor in QuickLookPreview.shared.toggle(url) }
                 return nil
@@ -2019,7 +2020,8 @@ private struct MediaInfoView: View {
             .focusable(false)
         }
         .padding(.horizontal, 20)
-        .padding(.vertical, 12)
+        .padding(.top, 12)
+        .padding(.bottom, 20)
     }
 
     var body: some View {
@@ -2078,9 +2080,11 @@ private struct MediaInfoView: View {
 
     private func resizeForCompactContent(_ contentHeight: CGFloat) {
         guard let window else { return }
-        let visibleHeight = (window.screen ?? NSScreen.main)?.visibleFrame.height ?? 900
-        let targetContentHeight = min(max(contentHeight, 520), visibleHeight - 28)
         let currentContentHeight = window.contentRect(forFrameRect: window.frame).height
+        let visibleHeight = (window.screen ?? NSScreen.main)?.visibleFrame.height ?? 900
+        let titlebarHeight = window.frame.height - currentContentHeight
+        let maximumContentHeight = max(520, visibleHeight - titlebarHeight - 28)
+        let targetContentHeight = min(max(contentHeight, 520), maximumContentHeight)
         guard abs(currentContentHeight - targetContentHeight) > 2 else { return }
         var frame = window.frame
         let top = frame.maxY
