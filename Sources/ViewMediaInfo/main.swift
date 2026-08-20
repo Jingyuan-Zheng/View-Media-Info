@@ -2041,6 +2041,7 @@ private struct MediaInfoView: View {
                     .padding(.vertical, 8)
                     .frame(maxWidth: .infinity, alignment: .topLeading)
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 ScrollView {
                     compactContent
@@ -2050,13 +2051,15 @@ private struct MediaInfoView: View {
                         .reportMediaInfoHeight("compact")
                 }
                 .scrollIndicators(.automatic)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-        }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
+
+            // Keep the controls in the normal vertical layout instead of overlaying
+            // them. The scroll view above therefore always yields this exact space.
             bottomBar
                 .reportMediaInfoHeight("footer")
         }
-        .frame(minWidth: 680, minHeight: 520)
+        .frame(minWidth: 680, maxWidth: .infinity, minHeight: 520, maxHeight: .infinity)
         .background(reduceTransparency ? AnyShapeStyle(Color(nsColor: .windowBackgroundColor)) : AnyShapeStyle(.regularMaterial))
         .onPreferenceChange(MediaInfoLayoutPreferenceKey.self) { model.updateLayoutHeights($0) }
         .background(CompactMediaQuickLookKeyHandler(url: fileURL,
