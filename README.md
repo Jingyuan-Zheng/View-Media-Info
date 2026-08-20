@@ -13,8 +13,8 @@ Media…** (`⌘O`).
   recording device, shooting date, location, and key photo/video/audio
   settings when present.
 - Lets you expand to a complete, readable metadata view when you need more.
-- Opens macOS Quick Look with Space. Videos also have a play button; images and
-  motion photos open with a double-click on the preview.
+- Opens macOS Quick Look with Space. Videos and audio artwork also have a play
+  button; images and motion photos open with a double-click on the preview.
 - Recognises Apple Live Photos by their matching `ContentIdentifier` and plays
   the companion movie in a loop. It also recognises common Android motion-photo
   metadata and embedded video payloads.
@@ -52,7 +52,8 @@ supported by the parser.
 2. If it starts without a file, choose **File → Open Media…** or press `⌘O`.
 3. Read the compact view, select **Details** for the full view, and use
    **Copy Results** to copy the currently displayed information.
-4. Press Space to show or hide Quick Look for an image, video, or motion photo.
+4. Press Space to show or hide Quick Look for an image, video, audio file, or
+   motion photo.
 
 ## Build from source
 

@@ -212,6 +212,7 @@ private let englishInterfaceText: [String: String] = [
     "详细信息": "Details", "精简信息": "Summary", "复制结果": "Copy Results", "设置": "Settings", "语言": "Language",
     "语言更改将在下次启动时生效。": "Language changes will take effect the next time the app starts.",
     "播放视频预览": "Play Video Preview",
+    "播放音频预览": "Play Audio Preview",
     "打开媒体…": "Open Media…",
     "打开媒体": "Open Media",
     "请选择一个媒体文件": "Choose a media file",
@@ -1286,7 +1287,7 @@ private struct LoopingMotionPhotoView: NSViewRepresentable {
     static func dismantleNSView(_ nsView: LoopingPlayerNSView, coordinator: Void) { nsView.stop() }
 }
 
-/// Captures Space only while the compact image, motion-photo, or video
+/// Captures Space only while the compact image, motion-photo, video, or audio
 /// inspector (or its Quick Look panel) is active.
 private struct CompactMediaQuickLookKeyHandler: NSViewRepresentable {
     let url: URL?
@@ -1567,6 +1568,7 @@ private struct MediaDimensionDiagram: View {
 private struct AudioArtworkView: View {
     @ObservedObject private var language = LanguageSettings.shared
     let artwork: NSImage?
+    let fileURL: URL?
 
     private var displaySize: CGSize {
         guard let artwork, artwork.size.width > 0, artwork.size.height > 0 else {
@@ -1590,6 +1592,22 @@ private struct AudioArtworkView: View {
                     .font(.system(size: 62, weight: .regular))
                 .foregroundStyle(.secondary)
                 .accessibilityLabel(localizedText("没有嵌入封面"))
+            }
+            if let fileURL {
+                Button {
+                    QuickLookPreview.shared.show(fileURL)
+                } label: {
+                    Image(systemName: "play.circle.fill")
+                        .font(.system(size: min(displaySize.width, displaySize.height) * 0.25,
+                                      weight: .regular))
+                        .symbolRenderingMode(.hierarchical)
+                        .foregroundStyle(.white)
+                        .shadow(color: .black.opacity(0.45), radius: 3, y: 1)
+                }
+                .buttonStyle(.plain)
+                .focusable(false)
+                .focusEffectDisabled()
+                .accessibilityLabel(localizedText("播放音频预览"))
             }
         }
         .frame(width: displaySize.width, height: displaySize.height)
@@ -1937,7 +1955,7 @@ private struct MediaInfoView: View {
     @ViewBuilder private var compactContent: some View {
         VStack(alignment: .leading, spacing: 16) {
             if isAudio {
-                AudioArtworkView(artwork: model.artwork)
+                AudioArtworkView(artwork: model.artwork, fileURL: fileURL)
             } else {
                 MediaDimensionDiagram(width: pixelWidth, height: pixelHeight, megapixels: megapixels,
                                       framesPerSecond: framesPerSecond, isVideo: isVideo, fileURL: fileURL,
@@ -2035,7 +2053,7 @@ private struct MediaInfoView: View {
         .background(reduceTransparency ? AnyShapeStyle(Color(nsColor: .windowBackgroundColor)) : AnyShapeStyle(.regularMaterial))
         .onPreferenceChange(MediaInfoLayoutPreferenceKey.self) { model.updateLayoutHeights($0) }
         .background(CompactMediaQuickLookKeyHandler(url: fileURL,
-                                                    isEnabled: !isAudio && !model.showsDetails))
+                                                    isEnabled: !model.showsDetails))
     }
 }
 
