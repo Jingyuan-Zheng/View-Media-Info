@@ -1626,8 +1626,9 @@ private struct MediaInfoView: View {
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @ObservedObject var model: MediaInfoWindowModel
     @ObservedObject private var language = LanguageSettings.shared
-    private let footerButtonIconWidth: CGFloat = 18
-    private let footerButtonContentWidth: CGFloat = 104
+    private let footerButtonIconSize: CGFloat = 16
+    private let footerButtonContentWidth: CGFloat = 108
+    private let footerButtonContentHeight: CGFloat = 18
 
     private let fileFields: Set<String> = [
         "文件名", "所在目录", "文件路径", "文件大小", "文件格式", "格式名称", "扩展名", "MIME 类型", "文件权限",
@@ -2009,12 +2010,15 @@ private struct MediaInfoView: View {
     private func footerButtonLabel(_ title: String, systemImage: String) -> some View {
         HStack(spacing: 8) {
             Image(systemName: systemImage)
-                .frame(width: footerButtonIconWidth, alignment: .center)
+                .font(.system(size: 14, weight: .regular))
+                .frame(width: footerButtonIconSize, height: footerButtonIconSize, alignment: .center)
             Text(title)
                 .lineLimit(1)
-            Spacer(minLength: 0)
+                .layoutPriority(1)
         }
-        .frame(width: footerButtonContentWidth, alignment: .leading)
+        .frame(width: footerButtonContentWidth,
+               height: footerButtonContentHeight,
+               alignment: .leading)
     }
 
     @ViewBuilder private var bottomBar: some View {
@@ -2032,6 +2036,8 @@ private struct MediaInfoView: View {
             }
             .focusable(false)
         }
+        .buttonStyle(.bordered)
+        .controlSize(.regular)
         .padding(.horizontal, 20)
         .padding(.top, 12)
         .padding(.bottom, 20)
