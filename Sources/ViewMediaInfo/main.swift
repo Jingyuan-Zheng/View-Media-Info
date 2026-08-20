@@ -2013,6 +2013,7 @@ private struct MediaInfoView: View {
                 Label(localizedText(model.showsDetails ? "精简信息" : "详细信息"),
                       systemImage: model.showsDetails ? "rectangle.compress.vertical" : "list.bullet.rectangle")
             }
+            .frame(width: 138)
             .focusable(false)
             Button(action: copyDisplayedResults) {
                 Label(localizedText("复制结果"), systemImage: "doc.on.doc")
