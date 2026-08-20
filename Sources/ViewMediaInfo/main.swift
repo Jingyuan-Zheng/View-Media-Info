@@ -2064,10 +2064,32 @@ private struct MediaInfoView: View {
     }
 }
 
+private struct OpenMediaPromptView: View {
+    var body: some View {
+        VStack(spacing: 14) {
+            Image(systemName: "folder.badge.plus")
+                .font(.system(size: 42, weight: .regular))
+                .foregroundStyle(.tint)
+            Text(localizedText("请选择一个媒体文件"))
+                .font(.title3.weight(.semibold))
+            Text(localizedText("请通过“文件 > 打开媒体…”或按 ⌘O 选择图片、视频或音频文件。"))
+                .font(.body)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 420)
+            Button(localizedText("打开媒体…")) {
+                EXIFWindowController.shared.openMediaFile()
+            }
+        }
+        .frame(minWidth: 680, minHeight: 520)
+        .background(.regularMaterial)
+    }
+}
+
 @MainActor private final class EXIFWindowController {
     static let shared = EXIFWindowController()
     private var window: NSWindow?
-    private var hostingController: NSHostingController<MediaInfoView>?
+    private var hostingController: NSHostingController<AnyView>?
     private var model: MediaInfoWindowModel?
     private var languageObservation: AnyCancellable?
     private let fileOpenModel = AppModel()
@@ -2081,6 +2103,36 @@ private struct MediaInfoView: View {
     private func refreshWindowTitle() {
         guard let model else { return }
         window?.title = "\(localizedText("媒体信息")): \(model.fileName)"
+    }
+
+    private func replaceWindowContent(with rootView: AnyView, title: String, contentSize: NSSize) {
+        let host = NSHostingController(rootView: rootView)
+        hostingController = host
+        let targetWindow: NSWindow
+        if let window {
+            targetWindow = window
+            targetWindow.contentViewController = host
+        } else {
+            targetWindow = NSWindow(contentViewController: host)
+            window = targetWindow
+        }
+        targetWindow.styleMask = [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView]
+        targetWindow.title = title
+        targetWindow.isReleasedWhenClosed = false
+        targetWindow.minSize = NSSize(width: 680, height: 520)
+        targetWindow.setContentSize(contentSize)
+        targetWindow.backgroundColor = .clear
+        targetWindow.isOpaque = false
+        targetWindow.titlebarAppearsTransparent = true
+        if !targetWindow.isVisible { targetWindow.center() }
+    }
+
+    func showOpenMediaPrompt() {
+        model = nil
+        replaceWindowContent(with: AnyView(OpenMediaPromptView()), title: localizedText("媒体信息"),
+                             contentSize: NSSize(width: 800, height: 560))
+        NSApp.activate(ignoringOtherApps: true)
+        window?.makeKeyAndOrderFront(nil)
     }
 
     private func resizeForCompactContent(_ contentHeight: CGFloat) {
@@ -2117,26 +2169,14 @@ private struct MediaInfoView: View {
 
     func show(title: String, values: [(String, String)], mediaType: String = "photo", artwork: NSImage? = nil,
               motionPhoto: MotionPhotoPlayback? = nil) {
-        if window == nil {
+        if window == nil || model == nil {
             let model = MediaInfoWindowModel(fileName: title, values: values, mediaType: mediaType, artwork: artwork,
                                              motionPhoto: motionPhoto)
             model.compactHeightChanged = { [weak self] height in self?.resizeForCompactContent(height) }
             self.model = model
-            let view = MediaInfoView(model: model)
-            let host = NSHostingController(rootView: view)
-            hostingController = host
-            let newWindow = NSWindow(contentViewController: host)
-            newWindow.styleMask = [.titled, .closable, .miniaturizable, .resizable]
-            newWindow.title = "\(localizedText("媒体信息")): \(title)"
-            newWindow.isReleasedWhenClosed = false
-            newWindow.minSize = NSSize(width: 680, height: 520)
-            newWindow.setContentSize(NSSize(width: 800, height: 720))
-            newWindow.backgroundColor = .clear
-            newWindow.isOpaque = false
-            newWindow.titlebarAppearsTransparent = true
-            newWindow.styleMask.insert(.fullSizeContentView)
-            newWindow.center()
-            window = newWindow
+            replaceWindowContent(with: AnyView(MediaInfoView(model: model)),
+                                 title: "\(localizedText("媒体信息")): \(title)",
+                                 contentSize: NSSize(width: 800, height: 720))
         } else {
             model?.fileName = title
             model?.values = values
@@ -2335,11 +2375,7 @@ private final class StandaloneMediaInfoDelegate: NSObject, NSApplicationDelegate
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.regular)
         guard let path = CommandLine.arguments.dropFirst().first(where: { !$0.hasPrefix("-") }) else {
-            let alert = NSAlert()
-            alert.messageText = localizedText("请选择一个媒体文件")
-            alert.informativeText = localizedText("请通过“文件 > 打开媒体…”或按 ⌘O 选择图片、视频或音频文件。")
-            alert.addButton(withTitle: localizedText("确定"))
-            alert.runModal()
+            EXIFWindowController.shared.showOpenMediaPrompt()
             return
         }
         let url = URL(fileURLWithPath: path)
