@@ -2048,8 +2048,13 @@ private struct MediaInfoView: View {
                 .frame(maxWidth: .infinity, alignment: .topLeading)
                 .reportMediaInfoHeight("compact")
             }
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
             bottomBar
                 .reportMediaInfoHeight("footer")
+                .background(reduceTransparency
+                            ? AnyShapeStyle(Color(nsColor: .windowBackgroundColor))
+                            : AnyShapeStyle(.regularMaterial))
         }
         .frame(minWidth: 680, minHeight: 520)
         .background(reduceTransparency ? AnyShapeStyle(Color(nsColor: .windowBackgroundColor)) : AnyShapeStyle(.regularMaterial))
