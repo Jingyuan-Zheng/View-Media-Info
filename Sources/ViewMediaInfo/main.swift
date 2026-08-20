@@ -1626,7 +1626,6 @@ private struct MediaInfoView: View {
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @ObservedObject var model: MediaInfoWindowModel
     @ObservedObject private var language = LanguageSettings.shared
-    private let footerButtonWidth: CGFloat = 190
 
     private let fileFields: Set<String> = [
         "文件名", "所在目录", "文件路径", "文件大小", "文件格式", "格式名称", "扩展名", "MIME 类型", "文件权限",
@@ -2011,15 +2010,19 @@ private struct MediaInfoView: View {
             Button {
                 model.toggleDetails()
             } label: {
-                Label(localizedText(model.showsDetails ? "精简信息" : "详细信息"),
-                      systemImage: model.showsDetails ? "rectangle.compress.vertical" : "list.bullet.rectangle")
+                // Both labels participate in layout, so the native button keeps
+                // its compact natural width and never shifts while toggling.
+                ZStack(alignment: .leading) {
+                    Label(localizedText(model.showsDetails ? "精简信息" : "详细信息"),
+                          systemImage: model.showsDetails ? "rectangle.compress.vertical" : "list.bullet.rectangle")
+                    Label(localizedText("详细信息"), systemImage: "list.bullet.rectangle").hidden()
+                    Label(localizedText("精简信息"), systemImage: "rectangle.compress.vertical").hidden()
+                }
             }
-            .frame(width: footerButtonWidth)
             .focusable(false)
             Button(action: copyDisplayedResults) {
                 Label(localizedText("复制结果"), systemImage: "doc.on.doc")
             }
-            .frame(width: footerButtonWidth)
             .focusable(false)
         }
         .padding(.horizontal, 20)
