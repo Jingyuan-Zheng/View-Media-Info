@@ -1627,7 +1627,7 @@ private struct MediaInfoView: View {
     @ObservedObject var model: MediaInfoWindowModel
     @ObservedObject private var language = LanguageSettings.shared
     private let footerButtonIconWidth: CGFloat = 18
-    private let footerButtonTitleWidth: CGFloat = 90
+    private let footerButtonContentWidth: CGFloat = 104
 
     private let fileFields: Set<String> = [
         "文件名", "所在目录", "文件路径", "文件大小", "文件格式", "格式名称", "扩展名", "MIME 类型", "文件权限",
@@ -2012,9 +2012,9 @@ private struct MediaInfoView: View {
                 .frame(width: footerButtonIconWidth, alignment: .center)
             Text(title)
                 .lineLimit(1)
-                .frame(width: footerButtonTitleWidth, alignment: .center)
+            Spacer(minLength: 0)
         }
-        .frame(width: footerButtonIconWidth + 8 + footerButtonTitleWidth)
+        .frame(width: footerButtonContentWidth, alignment: .leading)
     }
 
     @ViewBuilder private var bottomBar: some View {
