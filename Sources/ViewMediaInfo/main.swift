@@ -268,12 +268,46 @@ private let englishInterfaceText: [String: String] = [
     "筛选": "Filter", "类型": "Type", "同步状态": "Sync Status", "更新数据库": "Update Database", "刷新": "Refresh",
     "标记已同步": "Mark as Synced", "标记未同步": "Mark as Not Synced", "目录": "Folder", "同步": "Sync",
     "在 Finder 中打开文件": "Reveal File in Finder", "打开所在目录": "Open Containing Folder", "显示简介": "Get Info",
-    "查看媒体信息": "View Media Information", "搜索文件名或目录": "Search file name or folder"
+    "查看媒体信息": "View Media Information", "搜索文件名或目录": "Search file name or folder",
+    "关于媒体信息": "About Media Information"
 ]
 
 private func localizedText(_ chinese: String) -> String {
     guard LanguageSettings.shared.language == .english else { return chinese }
     return englishInterfaceText[chinese] ?? chinese
+}
+
+@MainActor
+private enum MediaInfoAboutPanel {
+    static func present() {
+        NSApp.orderFrontStandardAboutPanel(options: [.credits: credits()])
+        NSApp.activate(ignoringOtherApps: true)
+    }
+
+    private static func credits() -> NSAttributedString {
+        let website = URL(string: "https://jingyuan-zheng.github.io")!
+        let repository = URL(string: "https://github.com/Jingyuan-Zheng/View-Media-Info")!
+        let isChinese = LanguageSettings.shared.language == .chinese
+        let author = isChinese ? "作者：Jingyuan Zheng" : "Created by Jingyuan Zheng"
+        let websiteTitle = isChinese ? "个人网站" : "Personal Website"
+        let repositoryTitle = isChinese ? "GitHub 仓库" : "GitHub Repository"
+        let license = isChinese ? "开源项目 · MIT 许可证" : "Open source · MIT License"
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = .center
+
+        let credits = NSMutableAttributedString(
+            string: "\(author)\n\n\(websiteTitle)\n\(repositoryTitle)\n\n\(license)",
+            attributes: [
+                .font: NSFont.systemFont(ofSize: NSFont.smallSystemFontSize),
+                .paragraphStyle: paragraphStyle
+            ]
+        )
+        let text = credits.string as NSString
+        credits.addAttribute(.link, value: website, range: text.range(of: websiteTitle))
+        credits.addAttribute(.link, value: repository, range: text.range(of: repositoryTitle))
+        credits.addAttribute(.link, value: repository, range: text.range(of: license))
+        return credits
+    }
 }
 
 private func localizedFieldLabel(_ label: String) -> String {
@@ -2420,6 +2454,11 @@ struct ViewMediaInfoApp: App {
     var body: some Scene {
         Settings { LanguageSettingsView() }
             .commands {
+                CommandGroup(replacing: .appInfo) {
+                    Button(localizedText("关于媒体信息")) {
+                        MediaInfoAboutPanel.present()
+                    }
+                }
                 CommandGroup(after: .newItem) {
                     Button(localizedText("打开媒体…")) {
                         EXIFWindowController.shared.openMediaFile()

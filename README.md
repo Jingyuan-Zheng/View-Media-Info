@@ -7,6 +7,8 @@ Media…** (`⌘O`).
 
 [简体中文说明](README.zh-CN.md)
 
+Project website: [jingyuan-zheng.github.io](https://jingyuan-zheng.github.io) · Source: [GitHub](https://github.com/Jingyuan-Zheng/View-Media-Info)
+
 ## What it does
 
 - Shows the essentials first: format, file size, real dimensions, camera or
@@ -54,6 +56,12 @@ supported by the parser.
    **Copy Results** to copy the currently displayed information.
 4. Press Space to show or hide Quick Look for an image, video, audio file, or
    motion photo.
+
+## About
+
+Choose **Media Information → About Media Information** to open macOS’s native
+About panel. It displays the bundled icon and version, plus links to the
+author, project website, source repository, and MIT license.
 
 ## Build from source
 

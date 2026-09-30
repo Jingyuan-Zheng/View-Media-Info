@@ -4,6 +4,8 @@
 
 [English README](README.md)
 
+项目主页：[jingyuan-zheng.github.io](https://jingyuan-zheng.github.io) · 源码：[GitHub](https://github.com/Jingyuan-Zheng/View-Media-Info)
+
 ## 主要功能
 
 - 默认展示最重要的信息：格式、文件大小、真实尺寸、拍摄／录音设备、拍摄时间、位置，以及存在时的相机、视频或音频参数。
@@ -31,6 +33,10 @@
 2. 无文件启动时，使用 **文件 → 打开媒体…** 或 `⌘O`。
 3. 精简模式查看关键信息；点按 **详细信息** 查看完整内容；**复制结果** 会复制当前显示的信息。
 4. 对图片、视频、音频或动态照片按空格键，可显示或关闭 Quick Look。
+
+## 关于
+
+在 **媒体信息 → 关于媒体信息** 中，可打开 macOS 原生的 About 面板。面板会显示 App 的图标和版本，并提供作者、项目主页、GitHub 仓库与 MIT 许可证链接。
 
 ## 从源码构建
 
