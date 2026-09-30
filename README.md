@@ -63,6 +63,29 @@ Choose **Media Information → About Media Information** to open macOS’s nativ
 About panel. It displays the bundled icon and version, plus links to the
 author, project website, source repository, and MIT license.
 
+## Install
+
+Releases provide two independent installation options:
+
+### Standalone app
+
+1. Download `Media Information-<version>.dmg` from the release.
+2. Open it and drag **View Media Info** to **Applications**.
+3. Open the app, then choose **File → Open Media…** when you want to inspect a file.
+
+### Finder Quick Action
+
+1. Download and unzip `View Media Data Quick Action-<version>.zip`.
+2. Double-click **View Media Data.workflow** and choose **Install**.
+3. In Finder, select an image, video, or audio file, then choose **Quick Actions → View Media Data** from the contextual menu.
+
+The workflow contains its own copy of the app and is installed at
+`~/Library/Services`. It is therefore independent of the standalone app.
+
+The releases are ad-hoc signed and not notarized. If macOS blocks the first
+launch, Control-click the app or workflow and choose **Open**, then confirm the
+prompt.
+
 ## Build from source
 
 This repository builds a standalone app bundle without Xcode:
@@ -78,6 +101,16 @@ verifies it, and writes the portable archive here:
 build/View Media Info.app.zip
 ```
 
+To create both public release assets, with [Dmg Maker](../Dmg%20Maker) beside
+this repository, run:
+
+```sh
+./scripts/package_release.sh
+```
+
+It creates a DMG containing the standalone app and a ZIP containing the
+installable Finder Quick Action in `release/`.
+
 ## For developers
 
 ### Project layout
@@ -86,6 +119,8 @@ build/View Media Info.app.zip
 - `Resources/` — app icon and localized menu resources.
 - `Info.plist` — bundle metadata.
 - `build_app.sh` — reproducible standalone build script.
+- `Workflow/` — Finder Quick Action template; packaging adds the compiled app.
+- `scripts/package_release.sh` — creates the DMG and installable workflow ZIP.
 
 The app is deliberately standalone. It is a recoverable copy of a helper used
 by a separate workflow, not a linked module; keep changes in this repository

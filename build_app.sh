@@ -39,6 +39,10 @@ cp -R "$PROJECT_DIR/Resources/zh-Hans.lproj" "$RESOURCES_DIR/zh-Hans.lproj"
 xattr -cr "$APP_DIR"
 codesign --force --deep --sign - "$APP_DIR"
 codesign --verify --deep --strict "$APP_DIR"
-ditto -c -k --keepParent "$APP_DIR" "$ARCHIVE_PATH"
+rm -f "$ARCHIVE_PATH"
+(
+    cd "$STAGING_DIR"
+    /usr/bin/zip -r -X "$ARCHIVE_PATH" "View Media Info.app" -x '*/._*'
+)
 
 echo "$ARCHIVE_PATH"

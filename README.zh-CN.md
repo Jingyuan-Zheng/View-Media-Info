@@ -38,6 +38,26 @@
 
 在 **媒体信息 → 关于媒体信息** 中，可打开 macOS 原生的 About 面板。面板会显示 App 的图标和版本，并提供作者、项目主页、GitHub 仓库与 MIT 许可证链接。
 
+## 安装
+
+每个 Release 提供两种独立的安装方式：
+
+### 独立 App
+
+1. 下载 Release 中的 `Media Information-<版本>.dmg`。
+2. 打开后，将 **View Media Info** 拖入 **应用程序**。
+3. 打开 App；需要查看文件时，选择 **文件 → 打开媒体…**。
+
+### Finder 快捷操作
+
+1. 下载并解压 `View Media Data Quick Action-<版本>.zip`。
+2. 双击 **View Media Data.workflow**，然后选择 **安装**。
+3. 在 Finder 中选择图片、视频或音频文件；在右键菜单的 **快捷操作 → View Media Data** 中启动。
+
+工作流内含独立的 App 副本，安装位置为 `~/Library/Services`，因此不依赖独立 App。
+
+Release 使用 ad-hoc 签名，未进行公证。若 macOS 在首次启动时阻止，请按住 Control 点按 App 或工作流，选择 **打开**，再确认提示。
+
 ## 从源码构建
 
 无需 Xcode：
@@ -52,6 +72,14 @@
 build/View Media Info.app.zip
 ```
 
+若同级目录中已有 [Dmg Maker](../Dmg%20Maker)，可运行以下命令生成两种发布文件：
+
+```sh
+./scripts/package_release.sh
+```
+
+它会在 `release/` 中生成独立 App 的 DMG，以及可直接安装的 Finder 快捷操作 ZIP。
+
 ## 开发者说明
 
 ### 项目结构
@@ -60,6 +88,8 @@ build/View Media Info.app.zip
 - `Resources/`：应用图标与菜单本地化资源。
 - `Info.plist`：应用包信息。
 - `build_app.sh`：可复现的独立构建脚本。
+- `Workflow/`：Finder 快捷操作模板；打包时会加入编译后的 App。
+- `scripts/package_release.sh`：生成 DMG 与可安装工作流 ZIP。
 
 这个项目刻意保持独立：它是另一个工作流辅助程序的可恢复副本，并非链接模块；请保持修改在本仓库内自洽。
 
