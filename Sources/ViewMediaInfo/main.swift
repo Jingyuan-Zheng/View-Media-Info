@@ -18,16 +18,28 @@ private let mediaExtensions: Set<String> = ["jpg", "jpeg", "png", "gif", "heic",
 
 private final class MotionPhotoPlayback {
     let url: URL
+    let presentationSize: CGSize?
     private let removesFileOnDeinit: Bool
 
     init(url: URL, removesFileOnDeinit: Bool = false) {
         self.url = url
+        self.presentationSize = videoPresentationSize(for: url)
         self.removesFileOnDeinit = removesFileOnDeinit
     }
 
     deinit {
         if removesFileOnDeinit { try? FileManager.default.removeItem(at: url) }
     }
+}
+
+private func videoPresentationSize(for url: URL) -> CGSize? {
+    let asset = AVURLAsset(url: url)
+    guard let track = asset.tracks(withMediaType: .video).first else { return nil }
+    let transformedBounds = CGRect(origin: .zero, size: track.naturalSize)
+        .applying(track.preferredTransform)
+        .standardized
+    let size = CGSize(width: abs(transformedBounds.width), height: abs(transformedBounds.height))
+    return size.width > 0 && size.height > 0 ? size : nil
 }
 
 private func toolOutput(_ executable: String, arguments: [String]) -> Data {
@@ -1275,7 +1287,7 @@ private final class LoopingPlayerNSView: NSView {
         super.init(frame: frameRect)
         wantsLayer = true
         layer?.addSublayer(playerLayer)
-        playerLayer.videoGravity = .resizeAspectFill
+        playerLayer.videoGravity = .resizeAspect
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
@@ -1401,8 +1413,19 @@ private struct MediaDimensionDiagram: View {
     let isVideo: Bool
     let fileURL: URL?
     let motionPhotoURL: URL?
+    let motionPhotoPresentationSize: CGSize?
 
     private var isMotionPhoto: Bool { motionPhotoURL != nil }
+    private var diagramWidth: Int? {
+        motionPhotoPresentationSize.map { Int($0.width.rounded()) } ?? width
+    }
+    private var diagramHeight: Int? {
+        motionPhotoPresentationSize.map { Int($0.height.rounded()) } ?? height
+    }
+    private var diagramHeightInPoints: CGFloat {
+        guard let size = motionPhotoPresentationSize, size.height > size.width else { return 275 }
+        return 365
+    }
 
     private func arrow(from start: CGPoint, to end: CGPoint, doubleEnded: Bool = true) -> Path {
         var path = Path()
@@ -1423,7 +1446,7 @@ private struct MediaDimensionDiagram: View {
     }
 
     private func imageFrame(in size: CGSize) -> CGRect? {
-        guard let width, let height, width > 0, height > 0 else { return nil }
+        guard let width = diagramWidth, let height = diagramHeight, width > 0, height > 0 else { return nil }
         let ratio = Double(width) / Double(height)
         let availableWidth = max(80, size.width - 105)
         let availableHeight = max(60, size.height - 90)
@@ -1481,7 +1504,7 @@ private struct MediaDimensionDiagram: View {
                     .position(x: thumbnailFrame.midX, y: thumbnailFrame.midY)
                 }
                 Canvas { context, size in
-            guard let width, let height, width > 0, height > 0 else {
+            guard let width = diagramWidth, let height = diagramHeight, width > 0, height > 0 else {
                 context.draw(Text(localizedText("没有尺寸信息")).font(.callout).foregroundStyle(.secondary),
                              at: CGPoint(x: size.width / 2, y: size.height / 2))
                 return
@@ -1590,11 +1613,11 @@ private struct MediaDimensionDiagram: View {
         // A GeometryReader expands to fill its proposed height.  Leaving this
         // view flexible made the compact-window measurement feed the current
         // window height back into itself whenever Summary/Details was toggled.
-        .frame(height: isMotionPhoto ? 275 : (isVideo ? 360 : 215))
+        .frame(height: isMotionPhoto ? diagramHeightInPoints : (isVideo ? 360 : 215))
         .task(id: fileURL) { thumbnailLoader.load(fileURL) }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(localizedText("尺寸图"))
-        .accessibilityValue(width.flatMap { w in height.map {
+        .accessibilityValue(diagramWidth.flatMap { w in diagramHeight.map {
             language.language == .chinese ? "宽 \(w) 像素，高 \($0) 像素" : "Width \(w) pixels, height \($0) pixels"
         } } ?? localizedText("没有尺寸信息"))
     }
@@ -1997,7 +2020,8 @@ private struct MediaInfoView: View {
             } else {
                 MediaDimensionDiagram(width: pixelWidth, height: pixelHeight, megapixels: megapixels,
                                       framesPerSecond: framesPerSecond, isVideo: isVideo, fileURL: fileURL,
-                                      motionPhotoURL: model.motionPhoto?.url)
+                                      motionPhotoURL: model.motionPhoto?.url,
+                                      motionPhotoPresentationSize: model.motionPhoto?.presentationSize)
                     .padding(.horizontal, 12)
             }
             VStack(spacing: 0) {
