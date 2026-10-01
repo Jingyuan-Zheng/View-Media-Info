@@ -1416,12 +1416,6 @@ private struct MediaDimensionDiagram: View {
     let motionPhotoPresentationSize: CGSize?
 
     private var isMotionPhoto: Bool { motionPhotoURL != nil }
-    private var diagramWidth: Int? {
-        motionPhotoPresentationSize.map { Int($0.width.rounded()) } ?? width
-    }
-    private var diagramHeight: Int? {
-        motionPhotoPresentationSize.map { Int($0.height.rounded()) } ?? height
-    }
     private var diagramHeightInPoints: CGFloat {
         guard let size = motionPhotoPresentationSize, size.height > size.width else { return 275 }
         return 365
@@ -1446,8 +1440,12 @@ private struct MediaDimensionDiagram: View {
     }
 
     private func imageFrame(in size: CGSize) -> CGRect? {
-        guard let width = diagramWidth, let height = diagramHeight, width > 0, height > 0 else { return nil }
-        let ratio = Double(width) / Double(height)
+        guard let width, let height, width > 0, height > 0 else { return nil }
+        // A Live Photo's motion component can carry a rotation transform while
+        // the HEIC's stored pixel dimensions remain landscape.  Use the video
+        // only to shape its player; all displayed dimensions remain the HEIC's.
+        let ratio = motionPhotoPresentationSize.map { Double($0.width / $0.height) }
+            ?? Double(width) / Double(height)
         let availableWidth = max(80, size.width - 105)
         let availableHeight = max(60, size.height - 90)
         let rectangleWidth = min(availableWidth, availableHeight * ratio)
@@ -1504,7 +1502,7 @@ private struct MediaDimensionDiagram: View {
                     .position(x: thumbnailFrame.midX, y: thumbnailFrame.midY)
                 }
                 Canvas { context, size in
-            guard let width = diagramWidth, let height = diagramHeight, width > 0, height > 0 else {
+            guard let width, let height, width > 0, height > 0 else {
                 context.draw(Text(localizedText("没有尺寸信息")).font(.callout).foregroundStyle(.secondary),
                              at: CGPoint(x: size.width / 2, y: size.height / 2))
                 return
@@ -1617,7 +1615,7 @@ private struct MediaDimensionDiagram: View {
         .task(id: fileURL) { thumbnailLoader.load(fileURL) }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(localizedText("尺寸图"))
-        .accessibilityValue(diagramWidth.flatMap { w in diagramHeight.map {
+        .accessibilityValue(width.flatMap { w in height.map {
             language.language == .chinese ? "宽 \(w) 像素，高 \($0) 像素" : "Width \(w) pixels, height \($0) pixels"
         } } ?? localizedText("没有尺寸信息"))
     }
