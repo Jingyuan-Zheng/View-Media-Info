@@ -68,16 +68,68 @@ notarized.
 
 ![Audio metadata in the compact view](docs/screenshots/audio-summary.png)
 
-## Supported information
+## Features in detail
 
-- Photos: format, file size, stored pixel dimensions, megapixels, camera,
-  lens, exposure, capture date, and location when present.
-- Live Photos: the same photo information plus a looping companion-movie
-  preview. Apple and common Android motion-photo metadata are recognised.
-- Videos: dimensions, frame rate, duration, codec, bitrate, audio stream,
-  device, date, and location when available.
-- Audio: artwork, title, artist, album, year, genre, duration, format, codec,
-  bitrate, sample rate, and channel count.
+### A compact view first, complete metadata on demand
+
+Every file opens in a focused summary designed for a quick answer: a visual
+preview, its most useful dimensions or duration, and the most relevant fields
+for that type of media. Choose **Details** to expand into grouped file,
+technical, camera, recording, date, and location information. **Copy Results**
+copies the visible result so it can be pasted into a message, note, or issue.
+
+### Photos
+
+- Displays the file format, extension, MIME/container details, file size,
+  stored pixel width and height, megapixels, bit depth, colour information,
+  orientation, and available XMP/IPTC data.
+- Shows a scaled visual diagram of the image dimensions alongside its
+  thumbnail, so landscape, portrait, and high-resolution images are easy to
+  identify at a glance.
+- Reads camera and lens metadata when present: manufacturer, model, lens name,
+  focal length and range, aperture, shutter speed, ISO, exposure settings, and
+  capture date.
+- Shows GPS coordinates and resolves them to a place name when macOS can do
+  so. If a location lookup is unavailable, the original coordinates remain
+  available in Details.
+
+### Live Photos and motion photos
+
+- Detects Apple Live Photos by matching the HEIC and companion movie
+  `ContentIdentifier` in the same folder.
+- Recognises common Android motion-photo metadata and embedded video payloads.
+- Loops the motion component in the preview while reporting dimensions and
+  megapixels from the still photo itself.
+- Respects the companion video’s display transform, so rotated portrait motion
+  is shown in the correct orientation without being cropped.
+
+### Videos
+
+- Presents a video thumbnail with Quick Look playback and a dimension diagram
+  showing stored width, height, megapixels, and frame rate.
+- Reads duration, codec, bitrate, container format, creation/capture date,
+  device, and location when those fields are included in the file.
+- Reports available audio-stream properties such as codec, bitrate, sample
+  rate, and channel count alongside the video information.
+
+### Audio
+
+- Shows embedded album artwork, or a native placeholder when there is none.
+- Reads title, artist, album, album artist, composer, track and disc numbers,
+  year, genre, and comments when available.
+- Displays duration, file size, format, codec, bitrate, sample rate, bit
+  depth, and channel layout.
+- Uses a preview play button when macOS can play the selected file.
+
+### Native macOS behaviour and privacy
+
+- Uses Quick Look for previews and the standard macOS About panel for app and
+  version information.
+- Supports Chinese and English; the first launch follows macOS, while a choice
+  in Settings is applied at the next launch.
+- Reads media only. It never changes a file, persists a metadata database, or
+  uploads media. Reverse geocoding uses Apple system services only when a
+  location name is requested.
 
 The file picker accepts images, movies, and audio files. macOS and the
 installed metadata tools determine the exact formats available; common HEIC,
